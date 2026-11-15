@@ -1,42 +1,34 @@
-# movie_explorer
+# Movie Explorer — Studio Ghibli
 
-This template should help get you started developing with Vue 3 in Vite.
+Trabalho individual de Programação Web II (ISUTC, LECC31).
 
-## Recommended IDE Setup
+Aplicação Web em Vue 3, Vue Router e Vite com API pública de filmes.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Funcionalidades
+- Listagem de filmes
+- Pesquisa por título
+- Filtros por realizador, ano e classificação
+- Página de detalhes: cartaz, título, ano, realizador, produtor, duração e sinopse
+- Paginação e tratamento de erros
 
-## Recommended Browser Setup
+## API pública
+https://ghibliapi.vercel.app/films
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+Não é necessária chave de API. A classificação da API (0–100) é apresentada na escala 0–10. O catálogo é limitado aos filmes Studio Ghibli.
 
-## Type Support for `.vue` Imports in TS
+## Executar
+Requer Node.js 22 ou superior.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+    npm ci
+    npm run dev
 
-## Customize configuration
+## Publicar no GitHub Pages
+1. Settings → Pages → Source: GitHub Actions
+2. Actions → Publicar Movie Explorer → Run workflow
+3. Site: https://telcio-calege.github.io/Movie_Explorer/
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Branches
+main e desenvolvimento
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
+## Repositório
+https://github.com/TELCIO-CALEGE/Movie_Explorer

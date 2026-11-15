@@ -1,89 +1,38 @@
 <script setup>
 defineProps({
-  genero: String,
-  ano: String,
-  classificacao: String
+  realizador: String, ano: String, classificacao: String,
+  realizadores: { type: Array, default: () => [] },
+  anos: { type: Array, default: () => [] }
 })
-
-const emit = defineEmits([
-  'update:genero',
-  'update:ano',
-  'update:classificacao'
-])
-
-const anoActual = new Date().getFullYear()
+const emit = defineEmits(['update:realizador','update:ano','update:classificacao'])
 </script>
-
 <template>
   <div class="filtros">
-
-
-    <select
-        :value="genero"
-        @change="emit('update:genero', $event.target.value)"
-    >
-      <option value="">Todos os géneros</option>
-      <option value="28">Acção</option>
-      <option value="12">Aventura</option>
-      <option value="878">Ficção científica</option>
-      <option value="35">Comédia</option>
-      <option value="18">Drama</option>
-      <option value="27">Terror</option>
-      <option value="53">Thriller</option>
-      <option value="16">Animação</option>
-      <option value="10749">Romance</option>
-      <option value="14">Fantasia</option>
-      <option value="9648">Mistério</option>
-      <option value="99">Documentário</option>
-    </select>
-
-
-    <select
-        :value="ano"
-        @change="emit('update:ano', $event.target.value)"
-    >
-      <option value="">Todos os anos</option>
-
-      <option
-          v-for="a in 30"
-          :key="a"
-          :value="anoActual - a + 1"
-      >
-        {{ anoActual - a + 1 }}
-      </option>
-    </select>
-
-
-    <select
-        :value="classificacao"
-        @change="emit('update:classificacao', $event.target.value)"
-    >
-      <option value="">Todas as classificações</option>
-      <option value="5">5 ou superior</option>
-      <option value="6">6 ou superior</option>
-      <option value="7">7 ou superior</option>
-      <option value="8">8 ou superior</option>
-      <option value="8.5">8.5 ou superior</option>
-      <option value="9">9 ou superior</option>
-    </select>
-
+    <label>Realizador
+      <select :value="realizador" @change="emit('update:realizador',$event.target.value)">
+        <option value="">Todos os realizadores</option>
+        <option v-for="nome in realizadores" :key="nome" :value="nome">{{ nome }}</option>
+      </select>
+    </label>
+    <label>Ano
+      <select :value="ano" @change="emit('update:ano',$event.target.value)">
+        <option value="">Todos os anos</option>
+        <option v-for="valor in anos" :key="valor" :value="String(valor)">{{ valor }}</option>
+      </select>
+    </label>
+    <label>Classificação
+      <select :value="classificacao" @change="emit('update:classificacao',$event.target.value)">
+        <option value="">Todas as classificações</option>
+        <option value="7">7 ou superior</option>
+        <option value="8">8 ou superior</option>
+        <option value="9">9 ou superior</option>
+        <option value="9.5">9.5 ou superior</option>
+      </select>
+    </label>
   </div>
 </template>
-
 <style scoped>
-.filtros {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin: 20px 0;
-}
-
-select {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
-  background: white;
-}
+.filtros { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin:20px 0 30px; }
+label { display:grid; gap:5px; text-align:left; font-size:14px; font-weight:600; }
+select { min-width:170px; max-width:280px; padding:11px; border:1px solid #cbd5e1; border-radius:8px; background:white; color:#17243a; }
 </style>
