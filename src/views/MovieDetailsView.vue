@@ -1,61 +1,98 @@
 <script setup>
-import { ref, watch, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { obterDetalhesFilme } from '../services/movieService.js'
-const route = useRoute()
-const filme = ref(null)
-const carregando = ref(true)
-const erro = ref('')
-let numeroPedido = 0
-async function carregarDetalhes() {
-  const pedido = ++numeroPedido
-  carregando.value = true
-  erro.value = ''
-  filme.value = null
-  try {
-    const dados = await obterDetalhesFilme(route.params.id)
-    if (pedido === numeroPedido) filme.value = dados
-  } catch(e) {
-    if (pedido === numeroPedido) erro.value = e.message
-  } finally {
-    if (pedido === numeroPedido) carregando.value = false
-  }
+import {ref,computed,watch,onUnmounted} from 'vue'
+import {useRoute} from 'vue-router'
+import {obterCatalogo,obterDetalhesFilme} from '../services/movieService.js'
+import MovieList from '../components/MovieList.vue'
+const route=useRoute()
+const filme=ref(null),catalogo=ref([]),carregando=ref(true),erro=ref('')
+let pedidoActual=0
+const relacionados=computed(()=>catalogo.value.filter(f=>f.id!==filme.value?.id).sort((a,b)=>b.classificacao-a.classificacao).slice(0,5))
+async function carregarDetalhes(){
+  const pedido=++pedidoActual
+  carregando.value=true;erro.value='';filme.value=null
+  try{
+    const [detalhes,todos]=await Promise.all([obterDetalhesFilme(route.params.id),obterCatalogo()])
+    if(pedido!==pedidoActual)return
+    filme.value=detalhes;catalogo.value=todos
+  }catch(e){if(pedido===pedidoActual)erro.value=e.message||'Não foi possível carregar os detalhes.'}
+  finally{if(pedido===pedidoActual)carregando.value=false}
 }
-watch(() => route.params.id, carregarDetalhes, { immediate:true })
-onUnmounted(() => { numeroPedido++ })
+watch(()=>route.params.id,carregarDetalhes,{immediate:true})
+onUnmounted(()=>{pedidoActual++})
 </script>
 <template>
-  <main>
-    <RouterLink :to="{ path:'/', query:route.query }" class="voltar">← Voltar aos filmes</RouterLink>
-    <p v-if="carregando">A carregar detalhes...</p>
-    <p v-else-if="erro" role="alert">{{ erro }}</p>
-    <article v-else-if="filme" class="detalhes">
-      <img v-if="filme.imagem" :src="filme.imagem" :alt="'Cartaz de '+filme.titulo" class="cartaz" />
-      <section class="informacoes">
+<main class="details-page">
+  <div v-if="carregando" class="container status-message" role="status">A carregar detalhes do filme...</div>
+  <div v-else-if="erro" class="container status-message" role="alert"><h2>Não foi possível abrir o filme</h2><p>{{ erro }}</p><RouterLink to="/" class="back-link">← Voltar ao catálogo</RouterLink></div>
+  <template v-else-if="filme">
+    <section class="detail-hero">
+      <div class="detail-backdrop" :style="filme.banner?{backgroundImage:'url('+filme.banner+')'}:{}"></div>
+      <div class="detail-overlay"></div>
+      <div class="container detail-hero-inner">
+        <RouterLink :to="{name:'home',query:route.query,hash:'#catalogo'}" class="back-link">← Voltar ao catálogo</RouterLink>
+        <span class="detail-eyebrow">✦ SELECÇÃO STUDIO GHIBLI</span>
         <h1>{{ filme.titulo }}</h1>
-        <p><strong>Título original:</strong> {{ filme.tituloOriginal || 'Não disponível' }}</p>
-        <p><strong>Ano:</strong> {{ filme.ano }}</p>
-        <p><strong>Realizador:</strong> {{ filme.realizador }}</p>
-        <p><strong>Produtor:</strong> {{ filme.produtor }}</p>
-        <p><strong>Classificação:</strong> ⭐ {{ filme.classificacao.toFixed(1) }} / 10</p>
-        <p><strong>Duração:</strong> {{ filme.duracao ? filme.duracao + ' minutos' : 'Não disponível' }}</p>
-        <h2>Sinopse</h2>
-        <p class="sinopse">{{ filme.descricao }}</p>
-        <small>Sinopse fornecida em inglês pela API.</small>
-      </section>
-    </article>
-  </main>
+        <div class="detail-tags"><span class="score">★ {{ filme.classificacao.toFixed(1) }} / 10</span><span>{{ filme.ano||'Ano desconhecido' }}</span><span>{{ filme.duracao?filme.duracao+' min':'Duração indisponível' }}</span><span>ANIMAÇÃO</span></div>
+        <p>Um filme realizado por <strong>{{ filme.realizador }}</strong></p>
+      </div>
+    </section>
+    <section class="container detail-body">
+      <div class="detail-poster"><img v-if="filme.imagem" :src="filme.imagem" :alt="'Cartaz de '+filme.titulo"/></div>
+      <div class="detail-content">
+        <span class="section-kicker">✦ SOBRE O FILME</span>
+        <h2>Uma história para <em>recordar.</em></h2>
+        <p class="synopsis">{{ filme.descricao }}</p>
+        <p class="translation-note">Sinopse disponibilizada em inglês pela API.</p>
+        <div class="info-grid">
+          <div><span>TÍTULO ORIGINAL</span><strong>{{ filme.tituloOriginal||'Não disponível' }}</strong></div>
+          <div><span>REALIZADOR</span><strong>{{ filme.realizador }}</strong></div>
+          <div><span>PRODUTOR</span><strong>{{ filme.produtor }}</strong></div>
+          <div><span>LANÇAMENTO</span><strong>{{ filme.ano||'Não disponível' }}</strong></div>
+        </div>
+        <RouterLink :to="{name:'home',query:route.query,hash:'#catalogo'}" class="browse-btn">← Explorar outros filmes</RouterLink>
+      </div>
+    </section>
+    <section class="container related-section">
+      <div class="related-heading"><div><span class="section-kicker">✦ CONTINUA A DESCOBRIR</span><h2>Talvez também <em>gostes de...</em></h2></div><RouterLink :to="{name:'home',hash:'#catalogo'}">Ver todos →</RouterLink></div>
+      <MovieList :filmes="relacionados"/>
+    </section>
+  </template>
+</main>
 </template>
 <style scoped>
-main { max-width:1050px; margin:auto; padding:38px 22px; }
-.voltar { display:inline-block; margin-bottom:28px; color:#2563eb; font-weight:700; text-decoration:none; }
-.detalhes { display:flex; gap:35px; align-items:flex-start; }
-.cartaz { width:290px; max-width:100%; border-radius:12px; box-shadow:0 8px 22px #0f172a24; }
-.informacoes { flex:1; min-width:0; }
-h1 { color:#2563eb; font-size:32px; margin:0 0 22px; }
-h2 { margin-top:25px; }
-p { line-height:1.7; margin:9px 0; }
-.sinopse { white-space:pre-line; }
-small { color:#64748b; }
-@media(max-width:700px) { .detalhes { flex-direction:column; align-items:center; } .cartaz { width:260px; } .informacoes { width:100%; } }
+.details-page{padding-bottom:90px}
+.detail-hero{min-height:490px;position:relative;isolation:isolate;background:radial-gradient(circle at 80% 20%,#352448,#0c0b13 65%);display:flex;align-items:end}
+.detail-backdrop{position:absolute;z-index:-2;inset:0;background-size:cover;background-position:center 43%;opacity:.68}
+.detail-overlay{position:absolute;z-index:-1;inset:0;background:linear-gradient(0deg,#080910 0%,#0809104d 72%),linear-gradient(90deg,#080910 0%,#08091099 52%,#08091026)}
+.detail-hero-inner{padding-top:35px;padding-bottom:65px}
+.back-link{display:inline-flex;align-items:center;gap:9px;padding:10px 0;color:#d7c5ff;font-size:13px;font-weight:700}
+.back-link:hover{color:#fff}
+.detail-eyebrow{display:block;margin-top:65px;font-size:10px;color:#d0baff;font-weight:850;letter-spacing:2.2px}
+h1{margin:17px 0 20px;font-size:clamp(39px,6vw,73px);line-height:1.05;letter-spacing:-2.5px;max-width:880px}
+.detail-tags{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.detail-tags span{border:1px solid #9b8d9c78;background:#0b0b13a1;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:700}
+.detail-tags .score{color:#ffda92}
+.detail-hero-inner>p{margin:18px 0 0;color:#c5bfce;font-size:13px}
+.detail-hero-inner>p strong{color:#fff}
+.detail-body{display:grid;grid-template-columns:270px minmax(0,1fr);gap:54px;margin-top:48px}
+.detail-poster img{display:block;width:100%;border-radius:14px;border:1px solid #51465b;box-shadow:0 20px 60px #0008}
+.detail-content{padding-top:10px}
+.section-kicker{font-size:10px;color:#bda3ff;letter-spacing:2.1px;font-weight:850}
+h2{font-size:clamp(28px,3.6vw,41px);letter-spacing:-1.4px;margin:13px 0 22px}
+h2 em{font-style:normal;color:#b79cfb}
+.synopsis{color:#cbc6d4;line-height:1.9;font-size:14px;max-width:760px;white-space:pre-line}
+.translation-note{font-size:11px;color:#807c91}
+.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:25px;margin:35px 0;padding:28px 0;border-top:1px solid #2d293a;border-bottom:1px solid #2d293a}
+.info-grid div{display:flex;flex-direction:column;gap:8px}
+.info-grid span{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#817d94}
+.info-grid strong{font-size:14px;font-weight:700}
+.browse-btn{display:inline-block;padding:13px 17px;background:#aa90fa;color:#0e0b19;border-radius:9px;font-weight:800;font-size:13px}
+.related-section{margin-top:90px}
+.related-heading{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:25px}
+.related-heading h2{margin-bottom:0}
+.related-heading>a{color:#c2aaff;font-size:13px;font-weight:800;white-space:nowrap}
+.status-message{padding:80px 0;min-height:60vh}
+.status-message p{color:#a8a1b8}
+@media(max-width:750px){.detail-body{grid-template-columns:1fr;gap:28px}.detail-poster{max-width:240px}.detail-hero{min-height:420px}.detail-eyebrow{margin-top:40px}}
+@media(max-width:480px){.detail-body{margin-top:20px}.info-grid{gap:18px}.detail-tags span{font-size:10px}.related-heading{align-items:start;flex-direction:column}}
 </style>
