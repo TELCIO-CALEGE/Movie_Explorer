@@ -35,8 +35,6 @@ jobs:
 
       - name: Compilar aplicacao
         run: npm run build
-        env:
-          VITE_TMDB_API_KEY: ${{ secrets.VITE_TMDB_API_KEY }}
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
