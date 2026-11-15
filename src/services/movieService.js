@@ -14,6 +14,7 @@ export async function obterCatalogo() {
         ano: Number(f.release_date) || null,
         classificacao: (Number(f.rt_score) || 0) / 10,
         imagem: f.image || '',
+        banner: f.movie_banner || '',
         realizador: f.director || 'Desconhecido',
         produtor: f.producer || 'Não disponível',
         duracao: Number(f.running_time) || null,

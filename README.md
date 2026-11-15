@@ -1,34 +1,30 @@
-# Movie Explorer — Studio Ghibli
+# SHADOW'S_MOVIES
 
-Trabalho individual de Programação Web II (ISUTC, LECC31).
-
-Aplicação Web em Vue 3, Vue Router e Vite com API pública de filmes.
+Aplicação de descoberta de filmes em Vue 3, Vue Router e Vite, para Programação Web II.
 
 ## Funcionalidades
-- Listagem de filmes
-- Pesquisa por título
-- Filtros por realizador, ano e classificação
-- Página de detalhes: cartaz, título, ano, realizador, produtor, duração e sinopse
-- Paginação e tratamento de erros
+- Página inicial cinematográfica e interface responsiva
+- Listagem, pesquisa por título, filtros por realizador/ano/classificação
+- Ordenação, paginação e página individual de detalhes
+- Tratamento de erros e navegação
 
-## API pública
-https://ghibliapi.vercel.app/films
-
-Não é necessária chave de API. A classificação da API (0–100) é apresentada na escala 0–10. O catálogo é limitado aos filmes Studio Ghibli.
+## API
+Studio Ghibli API: https://ghibliapi.vercel.app/films — pública e sem chave. Catálogo limitado aos filmes do Studio Ghibli; sinopses em inglês.
 
 ## Executar
-Requer Node.js 22 ou superior.
+Node.js 22.18+ ou 24.12+.
 
     npm ci
     npm run dev
 
-## Publicar no GitHub Pages
-1. Settings → Pages → Source: GitHub Actions
-2. Actions → Publicar Movie Explorer → Run workflow
-3. Site: https://telcio-calege.github.io/Movie_Explorer/
+## GitHub Pages
+Settings → Pages → Source: GitHub Actions. A branch main publica automaticamente.
+Vite utiliza base relativa, funcionando antes e depois da renomeação do repositório.
+
+- Antes: https://telcio-calege.github.io/Movie_Explorer/
+- Após renomear para SHADOWS_MOVIES: https://telcio-calege.github.io/SHADOWS_MOVIES/
+
+O nome visual SHADOW'S_MOVIES inclui apóstrofo; o nome do repositório não.
 
 ## Branches
-main e desenvolvimento
-
-## Repositório
-https://github.com/TELCIO-CALEGE/Movie_Explorer
+main e desenvolvimento.
